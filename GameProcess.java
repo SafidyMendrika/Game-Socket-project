@@ -1,6 +1,9 @@
 package launcher;
 
 import java.awt.event.MouseListener;
+import java.net.InetAddress;
+import java.net.ServerSocket;
+import java.net.Socket;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -9,6 +12,8 @@ import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
 import listener.IPgetterListener;
+import server.MainServer;
+import server.MainSocket;
 
 import java.awt.GridLayout;
 import java.awt.Dimension;
@@ -31,16 +36,20 @@ public class GameProcess implements MouseListener {
         JButton src = (JButton) e.getSource();
         this.getToClose().setVisible(false);
         if (src.getName().equals("host")) {
-            System.out.println("go");
-        } else {
-            String askedIp = null;
-            askForIp(askedIp);
+            try {
+                MainServer server = new MainServer(1899);
+                MainSocket client = new MainSocket(new Socket(InetAddress.getLocalHost(), 1899));
 
-            System.out.println(askedIp);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                // TODO: handle exception
+            }
+        } else {
+            askForIp();
         }
     }
 
-    public void askForIp(String ip) {
+    public void askForIp() {
         JFrame askIpFrame = new JFrame();
         askIpFrame.setSize(new Dimension(200, 100));
         askIpFrame.setLayout(new GridLayout(3, 1));
@@ -59,7 +68,7 @@ public class GameProcess implements MouseListener {
 
         askIpFrame.add(submit);
 
-        IPgetterListener ipGetterListener = new IPgetterListener(field);
+        IPgetterListener ipGetterListener = new IPgetterListener(field, askIpFrame);
         submit.addMouseListener(ipGetterListener);
 
         askIpFrame.setVisible(true);

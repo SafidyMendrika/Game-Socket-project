@@ -3,25 +3,28 @@ package module;
 import javax.swing.JFrame;
 import javax.swing.WindowConstants;
 
+import module.Canvas;
 import server.MainSocket;
 import java.awt.Dimension;
 
 public class MainSocketThread extends Thread {
     MainSocket socket;
+    JFrame container;
     private boolean started;
 
-    public MainSocketThread(MainSocket toListen) {
+    public MainSocketThread(MainSocket toListen, JFrame container) {
         setSocket(toListen);
-        setStarted(started);
-
+        setContainer(container);
     }
 
     @Override
     public void run() {
         // TODO Auto-generated method stub
         super.run();
+        Canvas test = new Canvas(this.getContainer());
         while (this.isStarted()) {
-
+            this.getContainer().remove(0);
+            this.getContainer().add(test);
         }
     }
 
@@ -55,6 +58,14 @@ public class MainSocketThread extends Thread {
 
     public void setStarted(boolean started) {
         this.started = started;
+    }
+
+    public JFrame getContainer() {
+        return container;
+    }
+
+    public void setContainer(JFrame container) {
+        this.container = container;
     }
 
 }

@@ -2,6 +2,7 @@ package module;
 
 import java.net.Socket;
 
+import module.GameInteractionThread;
 import server.MainServer;
 import server.MainSocket;
 
@@ -10,6 +11,7 @@ public class ClientInstanceThread extends Thread {
     private boolean isStarted;
 
     public ClientInstanceThread(MainServer server) throws Exception {
+        setStarted(true);
         setServer(server);
     }
 
@@ -17,13 +19,14 @@ public class ClientInstanceThread extends Thread {
     public void run() {
         // TODO Auto-generated method stub
         super.run();
+        GameInteractionThread git = new GameInteractionThread(this.getServer());
         try {
-
             Socket client = null;
+            git.start();
             while (this.isStarted()) {
                 client = this.getServer().accept();
                 if (client != null) {
-                    this.getServer().getClients().add(new MainSocket(client));
+                    this.getServer().getClients().add(client);
                 }
                 this.getServer().treatUsers();
             }

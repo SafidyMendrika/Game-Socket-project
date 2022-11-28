@@ -18,7 +18,6 @@ public class MainServer extends ServerSocket {
         super(port);
         this.setClients(new ArrayList<>());
 
-        System.out.println("creation du server");
         ClientInstanceThread clientChecker = new ClientInstanceThread(this);
         clientChecker.start();
 
@@ -27,12 +26,12 @@ public class MainServer extends ServerSocket {
 
     public void treatUsers() {
         Socket socket = null;
-        MainSocket mainSocketObject = null;
+        Socket socketObject = null;
 
         for (int i = 0; i < this.getClients().size(); i++) {
 
-            mainSocketObject = (MainSocket) this.getClients().get(i);
-            socket = mainSocketObject.getSocket();
+            socketObject = (Socket) this.getClients().get(i);
+            socket = socketObject;
 
             System.out.println("client(" + i + ") : " + socket);
         }

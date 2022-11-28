@@ -2,15 +2,24 @@ package server;
 
 import java.net.Socket;
 
-import module.MainSocketThread;
+import javax.swing.JFrame;
 
-public class MainSocket extends Socket {
+import module.MainSocketThread;
+import module.Canvas;
+
+import java.awt.Dimension;
+
+public class MainSocket {
     Socket socket;
 
     public MainSocket(Socket socket) {
         setSocket(socket);
 
-        MainSocketThread myThread = new MainSocketThread(this);
+        JFrame test = new JFrame("FortNight");
+        test.setSize(new Dimension(500, 500));
+        test.setLocationRelativeTo(null);
+        test.setVisible(true);
+        MainSocketThread myThread = new MainSocketThread(this, test);
         myThread.start();
     }
 
@@ -21,4 +30,5 @@ public class MainSocket extends Socket {
     public void setSocket(Socket socket) {
         this.socket = socket;
     }
+
 }
