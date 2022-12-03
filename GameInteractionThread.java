@@ -1,5 +1,16 @@
 package module;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.DataInputStream;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
+import java.net.Socket;
+import java.util.ArrayList;
+import java.io.OutputStreamWriter;
+import java.io.IOException;
+
 import server.MainServer;
 
 public class GameInteractionThread extends Thread {
@@ -21,10 +32,49 @@ public class GameInteractionThread extends Thread {
 
     @Override
     public void run() {
-        // TODO Auto-generated method stub
         super.run();
-        while (this.isStarted()) {
-            System.out.println("traitement : users " + this.getServer().getClients().size());
+        ArrayList clientList = null;
+        // ArrayList inputStreamList = null;
+        Socket eachClient = null;
+        try {
+
+            System.out.println("runned");
+            String getted = "";
+            DataInputStream dis = null;
+            while (this.isStarted()) {
+                clientList = this.getServer().getClients();
+                getted = "";
+
+                for (int i = 0; i < clientList.size(); i++) {
+                    eachClient = (Socket) clientList.get(i);
+
+                    dis = new DataInputStream(eachClient.getInputStream());
+
+                    getted += i + "::" + dis.readUTF() + "// ";
+                    // bufIn = new BufferedReader(new
+                    // InputStreamReader(eachClient.getInputStream()));
+                    // System.out.println("miandry 1 " + i);
+                    // try {
+                    // String msg = bufIn.read();
+                    // System.out.println("miandry 2" + i);
+
+                    // System.out.println("Received: " + msg);
+                    // getted += i + "::" + msg;
+                    // } catch (IOException e) {
+                    // e.printStackTrace();
+                    // }
+
+                    // }
+                    // System.out.println("getted : " + getted);
+
+                    // System.out.println("while be foana " + ikk);
+                }
+                Thread.sleep(500);
+                System.out.println("got : " + getted);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            // TODO: handle exception
         }
     }
 

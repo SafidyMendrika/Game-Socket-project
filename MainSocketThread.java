@@ -6,6 +6,9 @@ import javax.swing.WindowConstants;
 import module.Canvas;
 import server.MainSocket;
 import java.awt.Dimension;
+import java.awt.Robot;
+import java.io.DataOutputStream;
+import java.awt.Rectangle;
 
 public class MainSocketThread extends Thread {
     MainSocket socket;
@@ -19,17 +22,32 @@ public class MainSocketThread extends Thread {
 
     @Override
     public void run() {
-        // TODO Auto-generated method stub
         super.run();
-        Canvas test = new Canvas(this.getContainer());
-        while (this.isStarted()) {
-            this.getContainer().remove(0);
-            this.getContainer().add(test);
+        DataOutputStream dos;
+        try {
+
+            while (this.isStarted()) {
+                dos = new DataOutputStream(this.getSocket().getOutputStream());
+
+                System.out.println(this.getSocket().getAction() + " act");
+                if (this.getSocket().getAction() != null) {
+                    dos.writeUTF(this.getSocket().getAction());
+                    this.getSocket().setAction(null);
+                } else {
+                    dos.writeUTF("");
+                }
+                dos.flush();
+                Thread.sleep(500);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            // TODO: handle exception
         }
     }
 
     @Override
-    public synchronized void start() {
+    public void start() {
         // TODO Auto-generated method stub
         super.start();
         this.setStarted(true);

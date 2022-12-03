@@ -1,34 +1,113 @@
 package server;
 
+import java.net.InetAddress;
 import java.net.Socket;
+import java.net.UnknownHostException;
+import java.util.Random;
 
 import javax.swing.JFrame;
+import javax.swing.WindowConstants;
 
+import controller.KeyActionController;
+import engine.Player;
 import module.MainSocketThread;
 import module.Canvas;
 
 import java.awt.Dimension;
+import java.io.BufferedWriter;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.io.OutputStreamWriter;
 
-public class MainSocket {
-    Socket socket;
+public class MainSocket extends Socket {
+    Canvas canvas;
+    Player player;
+    String action;
 
-    public MainSocket(Socket socket) {
-        setSocket(socket);
+    public MainSocket(String host, int port) throws UnknownHostException, IOException {
+        super(host, port);
+        this.setAction(null);
+        instead();
+    }
 
-        JFrame test = new JFrame("FortNight");
-        test.setSize(new Dimension(500, 500));
-        test.setLocationRelativeTo(null);
-        test.setVisible(true);
-        MainSocketThread myThread = new MainSocketThread(this, test);
+    public MainSocket(InetAddress address, int port) throws UnknownHostException, IOException {
+        super(address, port);
+        instead();
+    }
+
+    private void instead() {
+        // for the player
+        Player thisPlayer = new Player();
+        thisPlayer.setxPosition(new Random().nextInt(500));
+        thisPlayer.setyPosition(new Random().nextInt(500));
+        //
+
+        JFrame frame = new JFrame("Fortnite");
+        frame.setSize(new Dimension(500, 500));
+        frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
+        frame.setLocationRelativeTo(null);
+
+        Canvas canvas = new Canvas(frame);
+        this.setCanvas(canvas);
+        frame.add(canvas);
+
+        // controller
+        KeyActionController kac = new KeyActionController(this);
+        frame.setFocusable(true);
+        frame.addKeyListener(kac);
+        //
+        frame.setVisible(true);
+
+        MainSocketThread myThread = new MainSocketThread(this, frame);
         myThread.start();
     }
 
-    public Socket getSocket() {
-        return socket;
+    public void sendMouvementData(String action) {
+        try {
+
+            // BufferedWriter a = new BufferedWriter(new
+            // OutputStreamWriter(this.getOutputStream()));
+
+            // a.write(action);
+            // a.write("\n");
+            // a.flush();
+            DataOutputStream dos = new DataOutputStream(this.getOutputStream());
+
+            dos.writeUTF(action);
+
+            dos.flush();
+
+        } catch (
+
+        Exception e) {
+            e.printStackTrace();
+        }
     }
 
-    public void setSocket(Socket socket) {
-        this.socket = socket;
+    public Canvas getCanvas() {
+        return canvas;
+    }
+
+    public void setCanvas(Canvas canvas) {
+        this.canvas = canvas;
+    }
+
+    public Player getPlayer() {
+        return player;
+    }
+
+    public void setPlayer(Player player) {
+        this.player = player;
+    }
+
+    public String getAction() {
+        return action;
+    }
+
+    public void setAction(String action) {
+        this.action = action;
     }
 
 }
