@@ -38,14 +38,10 @@ public class MainSocket extends Socket {
     }
 
     private void instead() {
-        // for the player
-        Player thisPlayer = new Player();
-        thisPlayer.setxPosition(new Random().nextInt(500));
-        thisPlayer.setyPosition(new Random().nextInt(500));
-        //
 
         JFrame frame = new JFrame("Fortnite");
-        frame.setSize(new Dimension(500, 500));
+        frame.setSize(new Dimension(800, 600));
+        frame.setResizable(false);
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         frame.setLocationRelativeTo(null);
 
