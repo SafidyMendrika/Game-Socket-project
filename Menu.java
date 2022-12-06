@@ -16,7 +16,7 @@ import launcher.GameProcess;
 
 public class Menu {
     public Menu() {
-        JFrame menu = new JFrame("FortNight");
+        JFrame menu = new JFrame("Chasse");
         menu.setSize(new Dimension(500, 300));
         menu.setLayout(null);
         menu.setLocationRelativeTo(null);

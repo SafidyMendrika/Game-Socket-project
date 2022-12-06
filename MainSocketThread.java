@@ -7,6 +7,7 @@ import module.Canvas;
 import server.MainSocket;
 import java.awt.Dimension;
 import java.awt.Robot;
+import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.awt.Rectangle;
 
@@ -24,12 +25,14 @@ public class MainSocketThread extends Thread {
     public void run() {
         super.run();
         DataOutputStream dos;
+        DataInputStream dis;
         try {
+            String moveActionFromServer = null;
 
             while (this.isStarted()) {
                 dos = new DataOutputStream(this.getSocket().getOutputStream());
 
-                System.out.println(this.getSocket().getAction() + " act");
+                // System.out.println(this.getSocket().getAction() + " act");
                 if (this.getSocket().getAction() != null) {
                     dos.writeUTF(this.getSocket().getAction());
                     this.getSocket().setAction(null);
@@ -37,7 +40,13 @@ public class MainSocketThread extends Thread {
                     dos.writeUTF("");
                 }
                 dos.flush();
-                Thread.sleep(500);
+
+                dis = new DataInputStream(this.getSocket().getInputStream());
+
+                moveActionFromServer = dis.readUTF();
+
+                this.getSocket().getCanvas().treatMoveResponse(moveActionFromServer);
+                Thread.sleep(60);
             }
 
         } catch (Exception e) {

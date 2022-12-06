@@ -1,11 +1,11 @@
 Nom : RAZAFIMALAZA
 Prenom : Safidy Mendrika
-ETU : 001899
+ETU : ETU001899
 Groupe : A
 
-Projet : Jeux en Socket Java
+Projet : Jeux en Socket Java => fanenjika malagasy
 
-avancement : 60%
+avancement : 80%
 
 details : 
     - connection entre le serveur et les client
@@ -13,3 +13,5 @@ details :
     - envoi des données de mouvement de chaque client au serveur
     - reception des action recu par le serveur par les clients
     - interaction spontanée des données pour chaque clients
+    - course entre le chasseur et les autres joueurs
+    - celui qui se fait attraper devient a son tour chasseur

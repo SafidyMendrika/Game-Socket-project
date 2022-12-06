@@ -1,5 +1,6 @@
 package module;
 
+import java.awt.Rectangle;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.DataInputStream;
@@ -20,10 +21,15 @@ public class GameInteractionThread extends Thread {
     private boolean started;
     ArrayList playersLocation;
     private int lastPlayersCount = 0;
+    int indexOfChassor;
+    private boolean chassStarted = false;
 
     // variables for the location limits
     private static int WIDTH = 800;
     private static int HEIGHT = 600;
+
+    public static int PWIDTH = 25;
+    public static int PHEIGHT = 25;
 
     public GameInteractionThread(MainServer server) {
         super();
@@ -60,6 +66,11 @@ public class GameInteractionThread extends Thread {
                     lastPlayersCount++;
                 }
 
+                if (lastPlayersCount > 2 && chassStarted == false) {
+                    startChass();
+                    chassStarted = true;
+                }
+
                 for (int i = 0; i < clientList.size(); i++) {
                     eachClient = (Socket) clientList.get(i);
 
@@ -74,6 +85,7 @@ public class GameInteractionThread extends Thread {
 
                 }
                 treatAction(getted);
+                checkColising();
                 for (int i = 0; i < clientList.size(); i++) {
                     eachClient = (Socket) clientList.get(i);
 
@@ -84,6 +96,7 @@ public class GameInteractionThread extends Thread {
                     dos.flush();
                 }
                 Thread.sleep(50);
+                // printLoccation();
                 // System.out.println("got : " + getted);
             }
         } catch (Exception e) {
@@ -91,6 +104,21 @@ public class GameInteractionThread extends Thread {
             // TODO: handle exception
         }
     }
+
+    public void startChass() {
+        indexOfChassor = new Random().nextInt(this.getPlayersLocation().size());
+    }
+
+    // private void printLoccation() {
+    // String a = "";
+
+    // int[] temp = null;
+    // for (int i = 0; i < this.getPlayersLocation().size(); i++) {
+    // temp = (int[]) this.getPlayersLocation().get(i);
+    // a += i + " : (" + temp[0] + "," + temp[1] + ") / ";
+    // }
+    // System.out.println(a);
+    // }
 
     private void treatAction(String get) {
         String[] eachAction = get.split("//");
@@ -108,10 +136,17 @@ public class GameInteractionThread extends Thread {
         int size = this.getPlayersLocation().size();
         for (int i = 0; i < size; i++) {
             if (i != size - 1) {
-                result += locationOf(i) + "//";
+                if (i == indexOfChassor) {
+                    result += locationOf(i) + "(b)//";
+                } else {
+                    result += locationOf(i) + "//";
+                }
             } else {
-                result += locationOf(i);
-
+                if (i == indexOfChassor) {
+                    result += locationOf(i) + "(b)";
+                } else {
+                    result += locationOf(i) + "";
+                }
             }
         }
         // System.out.println(result);
@@ -164,14 +199,14 @@ public class GameInteractionThread extends Thread {
         } else if (movement.equals("down")) {
             int[] location = (int[]) this.getPlayersLocation().get(playerIndex);
 
-            if (location[1] + 10 + 25 <= HEIGHT) {
+            if (location[1] + 10 + PHEIGHT <= HEIGHT) {
                 location[1] += 10;
             }
 
         } else if (movement.equals("right")) {
             int[] location = (int[]) this.getPlayersLocation().get(playerIndex);
 
-            if (location[0] + 10 + 25 <= WIDTH) {
+            if (location[0] + 10 + PWIDTH <= WIDTH) {
                 location[0] += 10;
             }
 
@@ -183,6 +218,58 @@ public class GameInteractionThread extends Thread {
             }
 
         }
+    }
+
+    public void checkColising() {
+        int[] temp, chassor;
+
+        for (int i = 0; i < this.getPlayersLocation().size(); i++) {
+            if (i != indexOfChassor) {
+                temp = (int[]) this.getPlayersLocation().get(i);
+                chassor = (int[]) this.getPlayersLocation().get(indexOfChassor);
+                if (isColising(chassor, temp)) {
+                    this.indexOfChassor = i;
+                    temp[0] = new Random().nextInt(WIDTH);
+                    temp[1] = new Random().nextInt(HEIGHT);
+                }
+            }
+        }
+    }
+
+    public boolean isColising(int[] playerA, int[] playerB) {
+        int x1, x2, y1, y2;
+        x1 = playerA[0];
+        y1 = playerA[1];
+        x2 = playerB[0];
+        y2 = playerB[1];
+
+        if (x1 > x2 && x1 < x2 + PWIDTH) {
+            if (y1 > y2 && y1 < y2 + PHEIGHT) {
+                return true;
+            }
+        }
+        if (x2 > x1 && x2 < x1 + PWIDTH) {
+            if (y2 > y1 && y2 < y1 + PHEIGHT) {
+                return true;
+            }
+        }
+
+        // if ((x2 > x1 && x2 < x1 + PWIDTH) && (y2 > y1 && y2 < y1 + PHEIGHT)) {
+        // System.out.println("aoo 1");
+        // return true;
+        // }
+        // if ((x1 > x2 && x1 < x2 + PWIDTH) && (y1 > y2 && y1 < y2 + PHEIGHT)) {
+        // System.out.println("aoo 2");
+        // return true;
+        // }
+        // Rectangle rect1 = new Rectangle();
+        // rect1.setSize(PWIDTH, PHEIGHT);
+        // rect1.setLocation(x1, y1);
+        // Rectangle rect2 = new Rectangle();
+        // rect1.setSize(PWIDTH, PHEIGHT);
+        // rect1.setLocation(x2, y2);
+
+        return false;
     }
 
     @Override

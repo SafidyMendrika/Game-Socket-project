@@ -21,7 +21,7 @@ public class KeyActionController implements KeyListener {
 
     @Override
     public void keyPressed(KeyEvent e) {
-        System.out.println(e.getKeyText(e.getKeyCode()));
+        // System.out.println(e.getKeyText(e.getKeyCode()));
         // this.getSocket().sendMouvementData(e.getKeyText(e.getKeyCode()));
         this.getSocket().setAction(e.getKeyText(e.getKeyCode()));
         // TODO Auto-generated method stub

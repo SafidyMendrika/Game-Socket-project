@@ -39,7 +39,7 @@ public class MainSocket extends Socket {
 
     private void instead() {
 
-        JFrame frame = new JFrame("Fortnite");
+        JFrame frame = new JFrame("Chass");
         frame.setSize(new Dimension(800, 600));
         frame.setResizable(false);
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
