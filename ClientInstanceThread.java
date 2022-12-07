@@ -35,7 +35,7 @@ public class ClientInstanceThread extends Thread {
                     // this.getServer().getInputStreamList().size());
                 }
 
-                this.getServer().treatUsers();
+                // this.getServer().treatUsers();
             }
         } catch (Exception e) {
             // TODO: handle exception

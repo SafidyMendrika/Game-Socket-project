@@ -36,7 +36,6 @@ public class GameInteractionThread extends Thread {
 
     // disconnected players
     ArrayList disconnectedPlayers;
-    int disconnectedCount = 0;
 
     public static int PWIDTH = 25;
     public static int PHEIGHT = 25;
@@ -127,8 +126,11 @@ public class GameInteractionThread extends Thread {
                             // TODO: handle exception
                         }
                     }
+                    if (isDisconnected(i) && i == shieldPossessor) {
+                        newShieldInstance();
+                    }
                 }
-                Thread.sleep(50);
+                Thread.sleep(10);
                 // printLoccation();
                 // System.out.println("got : " + getted);
             }
@@ -335,6 +337,7 @@ public class GameInteractionThread extends Thread {
             this.setShieldPossessor(playerIndex);
             this.setShieldLocation(null);
         }
+
     }
 
     public void checkColising() {

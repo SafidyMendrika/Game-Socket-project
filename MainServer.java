@@ -32,20 +32,20 @@ public class MainServer extends ServerSocket {
         git.start();
     }
 
-    public void treatUsers() {
-        Socket socket = null;
+    // public void treatUsers() {
+    // Socket socket = null;
 
-        // ObjectInputStream ois = null;
-        // ObjectOutputStream oos = null;
-        for (int i = 0; i < this.getClients().size(); i++) {
-            socket = (Socket) this.getClients().get(i);
+    // // ObjectInputStream ois = null;
+    // // ObjectOutputStream oos = null;
+    // for (int i = 0; i < this.getClients().size(); i++) {
+    // socket = (Socket) this.getClients().get(i);
 
-            // ois = new ObjectInputStream(socket.getInputStream());
-            // oos = new ObjectOutputStream(socket.getOutputStream());
-            System.out.println(" client :" + socket);
-        }
-        System.out.println("\n");
-    }
+    // // ois = new ObjectInputStream(socket.getInputStream());
+    // // oos = new ObjectOutputStream(socket.getOutputStream());
+    // System.out.println(" client :" + socket);
+    // }
+    // System.out.println("\n");
+    // }
 
     public ArrayList getClients() {
         return clients;

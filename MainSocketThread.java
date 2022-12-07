@@ -29,24 +29,29 @@ public class MainSocketThread extends Thread {
         try {
             String moveActionFromServer = null;
 
-            while (this.isStarted()) {
-                dos = new DataOutputStream(this.getSocket().getOutputStream());
+            while (this.isStarted() && !this.getSocket().isClosed()) {
+                try {
 
-                // System.out.println(this.getSocket().getAction() + " act");
-                if (this.getSocket().getAction() != null) {
-                    dos.writeUTF(this.getSocket().getAction());
-                    this.getSocket().setAction(null);
-                } else {
-                    dos.writeUTF("");
+                    dos = new DataOutputStream(this.getSocket().getOutputStream());
+
+                    // System.out.println(this.getSocket().getAction() + " act");
+                    if (this.getSocket().getAction() != null) {
+                        dos.writeUTF(this.getSocket().getAction());
+                        this.getSocket().setAction(null);
+                    } else {
+                        dos.writeUTF("");
+                    }
+                    dos.flush();
+
+                    dis = new DataInputStream(this.getSocket().getInputStream());
+
+                    moveActionFromServer = dis.readUTF();
+                } catch (Exception ex) {
+                    // TODO: handle exception
                 }
-                dos.flush();
-
-                dis = new DataInputStream(this.getSocket().getInputStream());
-
-                moveActionFromServer = dis.readUTF();
 
                 this.getSocket().getCanvas().treatMoveResponse(moveActionFromServer);
-                Thread.sleep(60);
+                Thread.sleep(20);
             }
 
         } catch (Exception e) {
