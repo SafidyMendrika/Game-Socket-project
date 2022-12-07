@@ -34,6 +34,10 @@ public class GameInteractionThread extends Thread {
     private static int WIDTH = 800;
     private static int HEIGHT = 600;
 
+    // disconnected players
+    ArrayList disconnectedPlayers;
+    int disconnectedCount = 0;
+
     public static int PWIDTH = 25;
     public static int PHEIGHT = 25;
 
@@ -41,6 +45,7 @@ public class GameInteractionThread extends Thread {
         super();
         this.setServer(server);
         this.setPlayersLocation(new ArrayList<int[]>());
+        this.setDisconnectedPlayers(new ArrayList<>());
     }
 
     public boolean isStarted() {
@@ -82,16 +87,23 @@ public class GameInteractionThread extends Thread {
                 for (int i = 0; i < clientList.size(); i++) {
                     eachClient = (Socket) clientList.get(i);
 
-                    if (eachClient.isConnected()) {
-                        dis = new DataInputStream(eachClient.getInputStream());
+                    if (!eachClient.isClosed()) {
+                        try {
 
-                        if (i != clientList.size() - 1) {
+                            dis = new DataInputStream(eachClient.getInputStream());
 
-                            getted += i + "::" + dis.readUTF() + "//";
-                        } else {
-                            getted += i + "::" + dis.readUTF();
+                            if (i != clientList.size() - 1) {
+
+                                getted += i + "::" + dis.readUTF() + "//";
+                            } else {
+                                getted += i + "::" + dis.readUTF();
+                            }
+                        } catch (Exception e1) {
+                            if (!isDisconnected(i)) {
+                                this.getDisconnectedPlayers().add(i);
+                            }
+                            // TODO: handle exception
                         }
-
                     }
 
                 }
@@ -101,11 +113,19 @@ public class GameInteractionThread extends Thread {
                     eachClient = (Socket) clientList.get(i);
                     if (!eachClient.isClosed()) {
 
-                        dos = new DataOutputStream(eachClient.getOutputStream());
+                        try {
 
-                        dos.writeUTF(allLocations());
+                            dos = new DataOutputStream(eachClient.getOutputStream());
 
-                        dos.flush();
+                            dos.writeUTF(allLocations());
+
+                            dos.flush();
+                        } catch (Exception e2) {
+                            if (!isDisconnected(i)) {
+                                this.getDisconnectedPlayers().add(i);
+                            }
+                            // TODO: handle exception
+                        }
                     }
                 }
                 Thread.sleep(50);
@@ -166,17 +186,30 @@ public class GameInteractionThread extends Thread {
 
         int size = this.getPlayersLocation().size();
         for (int i = 0; i < size; i++) {
-            if (i != size - 1) {
-                if (i == indexOfChassor) {
-                    result += locationOf(i) + "(b)//";
+            while (isDisconnected(i) && i == indexOfChassor) {
+                this.indexOfChassor = new Random().nextInt(size);
+            }
+
+            if (isDisconnected(i)) {
+                if (i != size - 1) {
+                    result += "(-50,-50)//";
                 } else {
-                    result += locationOf(i) + "//";
+                    result += "(-50,-50)";
                 }
             } else {
-                if (i == indexOfChassor) {
-                    result += locationOf(i) + "(b)";
+
+                if (i != size - 1) {
+                    if (i == indexOfChassor) {
+                        result += locationOf(i) + "(b)//";
+                    } else {
+                        result += locationOf(i) + "//";
+                    }
                 } else {
-                    result += locationOf(i) + "";
+                    if (i == indexOfChassor) {
+                        result += locationOf(i) + "(b)";
+                    } else {
+                        result += locationOf(i) + "";
+                    }
                 }
             }
         }
@@ -193,6 +226,18 @@ public class GameInteractionThread extends Thread {
         //
         // System.out.println("res : " + result);
         return result;
+    }
+
+    private boolean isDisconnected(int index) {
+        int temp;
+        for (int i = 0; i < this.getDisconnectedPlayers().size(); i++) {
+            temp = (int) this.getDisconnectedPlayers().get(i);
+
+            if (temp == index) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void randomizePlocation(int index) {
@@ -287,7 +332,6 @@ public class GameInteractionThread extends Thread {
 
         }
         if (shieldLoc != null && isColising(location, shieldLoc) && playerIndex != indexOfChassor) {
-            System.out.println("shield : " + playerIndex);
             this.setShieldPossessor(playerIndex);
             this.setShieldLocation(null);
         }
@@ -451,5 +495,13 @@ public class GameInteractionThread extends Thread {
 
     public void setShieldPossessor(int shieldPossessor) {
         this.shieldPossessor = shieldPossessor;
+    }
+
+    public ArrayList getDisconnectedPlayers() {
+        return disconnectedPlayers;
+    }
+
+    public void setDisconnectedPlayers(ArrayList disconnectedPlayers) {
+        this.disconnectedPlayers = disconnectedPlayers;
     }
 }

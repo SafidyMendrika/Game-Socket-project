@@ -5,7 +5,7 @@ Groupe : A
 
 Projet : Jeux en Socket Java => fanenjika malagasy
 
-avancement : 99%
+avancement : 80%
 
 details : 
     - connection entre le serveur et les client
@@ -18,3 +18,4 @@ details :
     - mise à niveaux de nouvelles fonctionnalitées : 
         # BOOST (jaune) : accelere brievement un joueur (tout le monde)
         # SHIELD (bleu) : protege un joueur du chasseur (tout le monde sauf chasseur)
+    - mise à niveaux des fonctionnalitées qui permet à la deconnexion sécurisé d'un client
