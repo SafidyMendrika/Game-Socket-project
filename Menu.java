@@ -26,7 +26,7 @@ public class Menu {
         JPanel header = new JPanel();
         header.setSize(new Dimension(500, 100));
         header.setLocation(0, 0);
-        JLabel headerText = new JLabel("Fort-night");
+        JLabel headerText = new JLabel("Fanenjika");
         headerText.setAlignmentX(SwingConstants.CENTER);
         headerText.setAlignmentY(SwingConstants.CENTER);
 

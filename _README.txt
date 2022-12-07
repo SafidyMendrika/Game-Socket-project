@@ -15,3 +15,6 @@ details :
     - interaction spontanée des données pour chaque clients
     - course entre le chasseur et les autres joueurs
     - celui qui se fait attraper devient a son tour chasseur
+    - mise à niveaux de nouvelles fonctionnalitées : 
+        # BOOST (jaune) : accelere brievement un joueur (tout le monde)
+        # SHIELD (bleu) : protege un joueur du chasseur (tout le monde sauf chasseur)

@@ -24,6 +24,12 @@ public class GameInteractionThread extends Thread {
     int indexOfChassor;
     private boolean chassStarted = false;
 
+    private int[] speedUpLocation;
+
+    // shield
+    private int[] shieldLocation;
+    int shieldPossessor = -1;
+    //
     // variables for the location limits
     private static int WIDTH = 800;
     private static int HEIGHT = 600;
@@ -57,6 +63,8 @@ public class GameInteractionThread extends Thread {
             String getted = "";
             DataInputStream dis = null;
             DataOutputStream dos = null;
+            newSpeedInstance();
+            newShieldInstance();
             while (this.isStarted()) {
                 clientList = this.getServer().getClients();
                 getted = "";
@@ -74,13 +82,16 @@ public class GameInteractionThread extends Thread {
                 for (int i = 0; i < clientList.size(); i++) {
                     eachClient = (Socket) clientList.get(i);
 
-                    dis = new DataInputStream(eachClient.getInputStream());
+                    if (eachClient.isConnected()) {
+                        dis = new DataInputStream(eachClient.getInputStream());
 
-                    if (i != clientList.size() - 1) {
+                        if (i != clientList.size() - 1) {
 
-                        getted += i + "::" + dis.readUTF() + "//";
-                    } else {
-                        getted += i + "::" + dis.readUTF();
+                            getted += i + "::" + dis.readUTF() + "//";
+                        } else {
+                            getted += i + "::" + dis.readUTF();
+                        }
+
                     }
 
                 }
@@ -88,12 +99,14 @@ public class GameInteractionThread extends Thread {
                 checkColising();
                 for (int i = 0; i < clientList.size(); i++) {
                     eachClient = (Socket) clientList.get(i);
+                    if (!eachClient.isClosed()) {
 
-                    dos = new DataOutputStream(eachClient.getOutputStream());
+                        dos = new DataOutputStream(eachClient.getOutputStream());
 
-                    dos.writeUTF(allLocations());
+                        dos.writeUTF(allLocations());
 
-                    dos.flush();
+                        dos.flush();
+                    }
                 }
                 Thread.sleep(50);
                 // printLoccation();
@@ -103,6 +116,24 @@ public class GameInteractionThread extends Thread {
             e.printStackTrace();
             // TODO: handle exception
         }
+    }
+
+    private void newSpeedInstance() {
+        int[] newSpeedInstance = new int[2];
+        newSpeedInstance[0] = new Random().nextInt(WIDTH - 50);
+        newSpeedInstance[1] = new Random().nextInt(HEIGHT - 50);
+
+        this.setSpeedUpLocation(newSpeedInstance);
+    }
+
+    // shield
+    private void newShieldInstance() {
+        int[] newSheeldInstance = new int[2];
+        newSheeldInstance[0] = new Random().nextInt(WIDTH - 50);
+        newSheeldInstance[1] = new Random().nextInt(HEIGHT - 50);
+
+        this.setShieldLocation(newSheeldInstance);
+        this.setShieldPossessor(-1);
     }
 
     public void startChass() {
@@ -149,8 +180,26 @@ public class GameInteractionThread extends Thread {
                 }
             }
         }
-        // System.out.println(result);
+        // for the boost
+        result += "/::/(" + this.getSpeedUpLocation()[0] + "," + this.getSpeedUpLocation()[1] + ")";
+        //
+
+        // for the shield
+        if (shieldPossessor == -1 && this.getShieldLocation() != null) {
+            result += "//(" + this.getShieldLocation()[0] + "," + this.getShieldLocation()[1] + ")";
+        } else {
+            result += "//" + shieldPossessor;
+        }
+        //
+        // System.out.println("res : " + result);
         return result;
+    }
+
+    private void randomizePlocation(int index) {
+        int[] temp = (int[]) this.getPlayersLocation().get(index);
+
+        temp[0] = new Random().nextInt(WIDTH - 25);
+        temp[1] = new Random().nextInt(HEIGHT - 25);
     }
 
     private String locationOf(int index) {
@@ -190,33 +239,57 @@ public class GameInteractionThread extends Thread {
     }
 
     private void playerMove(int playerIndex, String movement) {
+        int[] location = (int[]) this.getPlayersLocation().get(playerIndex);
+        int[] speedUpLoc = this.getSpeedUpLocation();
+        int[] shieldLoc = this.getShieldLocation();
+
         if (movement.equals("up")) {
-            int[] location = (int[]) this.getPlayersLocation().get(playerIndex);
 
             if (location[1] - 10 >= 0) {
                 location[1] -= 10;
+
+                if (isColising(location, speedUpLoc)) {
+                    location[1] -= 20;
+                    newSpeedInstance();
+                }
+
             }
         } else if (movement.equals("down")) {
-            int[] location = (int[]) this.getPlayersLocation().get(playerIndex);
 
             if (location[1] + 10 + PHEIGHT <= HEIGHT) {
                 location[1] += 10;
+                if (isColising(location, speedUpLoc)) {
+                    location[1] += 20;
+                    newSpeedInstance();
+                }
             }
 
         } else if (movement.equals("right")) {
-            int[] location = (int[]) this.getPlayersLocation().get(playerIndex);
 
             if (location[0] + 10 + PWIDTH <= WIDTH) {
                 location[0] += 10;
+
+                if (isColising(location, speedUpLoc)) {
+                    location[0] += 20;
+                    newSpeedInstance();
+                }
             }
 
         } else if (movement.equals("left")) {
-            int[] location = (int[]) this.getPlayersLocation().get(playerIndex);
 
             if (location[0] - 10 >= 0) {
                 location[0] -= 10;
+                if (isColising(location, speedUpLoc)) {
+                    location[0] -= 20;
+                    newSpeedInstance();
+                }
             }
 
+        }
+        if (shieldLoc != null && isColising(location, shieldLoc) && playerIndex != indexOfChassor) {
+            System.out.println("shield : " + playerIndex);
+            this.setShieldPossessor(playerIndex);
+            this.setShieldLocation(null);
         }
     }
 
@@ -228,9 +301,14 @@ public class GameInteractionThread extends Thread {
                 temp = (int[]) this.getPlayersLocation().get(i);
                 chassor = (int[]) this.getPlayersLocation().get(indexOfChassor);
                 if (isColising(chassor, temp)) {
-                    this.indexOfChassor = i;
-                    temp[0] = new Random().nextInt(WIDTH);
-                    temp[1] = new Random().nextInt(HEIGHT);
+                    if (this.getShieldPossessor() == i) {
+                        this.setShieldPossessor(-1);
+                        newShieldInstance();
+                    } else {
+                        this.indexOfChassor = i;
+                    }
+                    randomizePlocation(i);
+
                 }
             }
         }
@@ -293,5 +371,85 @@ public class GameInteractionThread extends Thread {
 
     public void setPlayersLocation(ArrayList playersLocation) {
         this.playersLocation = playersLocation;
+    }
+
+    public int getLastPlayersCount() {
+        return lastPlayersCount;
+    }
+
+    public void setLastPlayersCount(int lastPlayersCount) {
+        this.lastPlayersCount = lastPlayersCount;
+    }
+
+    public int getIndexOfChassor() {
+        return indexOfChassor;
+    }
+
+    public void setIndexOfChassor(int indexOfChassor) {
+        this.indexOfChassor = indexOfChassor;
+    }
+
+    public boolean isChassStarted() {
+        return chassStarted;
+    }
+
+    public void setChassStarted(boolean chassStarted) {
+        this.chassStarted = chassStarted;
+    }
+
+    public int[] getSpeedUpLocation() {
+        return speedUpLocation;
+    }
+
+    public void setSpeedUpLocation(int[] speedUpLocation) {
+        this.speedUpLocation = speedUpLocation;
+    }
+
+    public static int getWIDTH() {
+        return WIDTH;
+    }
+
+    public static void setWIDTH(int wIDTH) {
+        WIDTH = wIDTH;
+    }
+
+    public static int getHEIGHT() {
+        return HEIGHT;
+    }
+
+    public static void setHEIGHT(int hEIGHT) {
+        HEIGHT = hEIGHT;
+    }
+
+    public static int getPWIDTH() {
+        return PWIDTH;
+    }
+
+    public static void setPWIDTH(int pWIDTH) {
+        PWIDTH = pWIDTH;
+    }
+
+    public static int getPHEIGHT() {
+        return PHEIGHT;
+    }
+
+    public static void setPHEIGHT(int pHEIGHT) {
+        PHEIGHT = pHEIGHT;
+    }
+
+    public int[] getShieldLocation() {
+        return shieldLocation;
+    }
+
+    public void setShieldLocation(int[] shieldLocation) {
+        this.shieldLocation = shieldLocation;
+    }
+
+    public int getShieldPossessor() {
+        return shieldPossessor;
+    }
+
+    public void setShieldPossessor(int shieldPossessor) {
+        this.shieldPossessor = shieldPossessor;
     }
 }

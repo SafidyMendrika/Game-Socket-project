@@ -15,8 +15,15 @@ import java.util.Random;
 public class Canvas extends JPanel implements Runnable {
     String action;
     ArrayList playersLocation;
+    ArrayList lastPlayersLocations;
     int lastPlayersCount = 0;
     int indexOfChassor;
+    int[] speedUpLocation;
+
+    // shieds
+    private int[] shieldLocation;
+    int shieldPossessor = -1;
+    //
 
     public boolean running = false;
     public int tickCount = 0;
@@ -114,8 +121,8 @@ public class Canvas extends JPanel implements Runnable {
 
         g.setColor(new Color(255, 255, 255));
 
-        drawPlayers(g);
         try {
+            drawObjects(g);
             Thread.sleep(1);
         } catch (Exception e) {
             // TODO: handle exception
@@ -123,23 +130,96 @@ public class Canvas extends JPanel implements Runnable {
         // repaint();
     }
 
-    public void drawPlayers(Graphics g) {
+    public void drawObjects(Graphics g) {
         int[] temp = null;
+        int[] lTemp = null;
+
+        // draw the star
+        g.setColor(Color.YELLOW);
+        g.fillOval(this.getSpeedUpLocation()[0], this.getSpeedUpLocation()[1],
+                GameInteractionThread.PWIDTH,
+                GameInteractionThread.PHEIGHT);
+        // g.fill(new Ellipse2D.Double(this.getSpeedUpLocation()[0],
+        // this.getSpeedUpLocation()[1],
+        // GameInteractionThread.PWIDTH, GameInteractionThread.PHEIGHT));
+
+        g.setColor(Color.BLACK);
+        g.drawString("B", this.getSpeedUpLocation()[0] + 8, this.getSpeedUpLocation()[1] + 18);
+        //
+
+        // draw the boost
+        if (this.getShieldLocation() != null) {
+            g.setColor(Color.BLUE);
+            g.fillOval(this.getShieldLocation()[0], this.getShieldLocation()[1], 25, 25);
+            g.setColor(Color.WHITE);
+            g.drawString("S", this.getShieldLocation()[0] + 10, this.getShieldLocation()[1] + 15);
+        }
+        //
         for (int i = 0; i < this.getPlayersLocation().size(); i++) {
             g.setColor(Color.WHITE);
             if (indexOfChassor == i) {
                 g.setColor(Color.RED);
             }
             temp = (int[]) this.getPlayersLocation().get(i);
+            if (this.getLastPlayersLocations() != null
+                    && this.getPlayersLocation().size() == this.getLastPlayersLocations().size()) {
+                lTemp = (int[]) this.getLastPlayersLocations().get(i);
 
-            // System.out.println("loc : " + temp[0] + " , " + temp[1]);
-            g.fillRect(temp[0], temp[1], GameInteractionThread.PWIDTH, GameInteractionThread.PHEIGHT);
-            g.drawString(String.valueOf(i + 1), temp[0], temp[1] - 5);
+                if (lTemp[0] > temp[0]) {
+                    lTemp[0]--;
+                } else if (lTemp[0] < temp[0]) {
+                    lTemp[0]++;
+                } else if (lTemp[1] > temp[1]) {
+                    lTemp[1]--;
+                } else if (lTemp[1] < temp[1]) {
+                    lTemp[1]++;
+                }
+                // draw the player
+                g.drawString(String.valueOf(i + 1), lTemp[0], lTemp[1] - 5);
+                g.fillRect(lTemp[0], lTemp[1], GameInteractionThread.PWIDTH,
+                        GameInteractionThread.PHEIGHT);
+                // g.fill(new Rectangle2D.Double(lTemp[0], lTemp[1],
+                // GameInteractionThread.PWIDTH,
+                // GameInteractionThread.PHEIGHT));
+                //
+                // draw the shield possessor
+                if (i == this.getShieldPossessor()) {
+                    g.setColor(Color.BLUE);
+                    g.fillOval(lTemp[0], lTemp[1], 15, 15);
+                    // g.fill(new Ellipse2D.Double(lTemp[0], lTemp[1], 15, 15));
+                }
+            } else {
+
+                // System.out.println("loc : " + temp[0] + " , " + temp[1]);
+                g.fillRect(temp[0], temp[1], GameInteractionThread.PWIDTH, GameInteractionThread.PHEIGHT);
+                g.drawString(String.valueOf(i + 1), temp[0], temp[1] - 5);
+
+                if (i == this.getShieldPossessor()) {
+                    g.setColor(Color.BLUE);
+                    g.fillOval(temp[0], temp[1], 15, 15);
+                }
+            }
+
         }
     }
 
     public void treatMoveResponse(String action) {
-        String[] clientsAction = action.split("//");
+        // set parameters
+        String[] actWithParam = action.split("/::/");
+        String[] params = actWithParam[1].split("//");
+        this.setSpeedUpLocation(coordinize(params[0]));
+
+        /// for shield
+        try {
+            this.setShieldLocation(coordinize(params[1]));
+            this.setShieldPossessor(-1);
+        } catch (Exception e) {
+            this.setShieldLocation(null);
+            this.setShieldPossessor(Integer.parseInt(params[1]));
+        }
+        ///
+        //
+        String[] clientsAction = actWithParam[0].split("//");
         // System.out.println("act : " + action);
         while (lastPlayersCount != clientsAction.length) {
             instanceNewPLayer();
@@ -148,6 +228,7 @@ public class Canvas extends JPanel implements Runnable {
         }
 
         int[] temp = null;
+        this.setLastPlayersLocations((ArrayList) this.getPlayersLocation().clone());
         this.getPlayersLocation().clear();
         for (int i = 0; i < clientsAction.length; i++) {
             if (clientsAction[i].contains("(b)")) {
@@ -198,6 +279,70 @@ public class Canvas extends JPanel implements Runnable {
 
     public void setPlayersLocation(ArrayList playersLocation) {
         this.playersLocation = playersLocation;
+    }
+
+    public ArrayList getLastPlayersLocations() {
+        return lastPlayersLocations;
+    }
+
+    public void setLastPlayersLocations(ArrayList lastPlayersLocations) {
+        this.lastPlayersLocations = lastPlayersLocations;
+    }
+
+    public int getLastPlayersCount() {
+        return lastPlayersCount;
+    }
+
+    public void setLastPlayersCount(int lastPlayersCount) {
+        this.lastPlayersCount = lastPlayersCount;
+    }
+
+    public int getIndexOfChassor() {
+        return indexOfChassor;
+    }
+
+    public void setIndexOfChassor(int indexOfChassor) {
+        this.indexOfChassor = indexOfChassor;
+    }
+
+    public boolean isRunning() {
+        return running;
+    }
+
+    public void setRunning(boolean running) {
+        this.running = running;
+    }
+
+    public int getTickCount() {
+        return tickCount;
+    }
+
+    public void setTickCount(int tickCount) {
+        this.tickCount = tickCount;
+    }
+
+    public int[] getSpeedUpLocation() {
+        return speedUpLocation;
+    }
+
+    public void setSpeedUpLocation(int[] speedUpLocation) {
+        this.speedUpLocation = speedUpLocation;
+    }
+
+    public int[] getShieldLocation() {
+        return shieldLocation;
+    }
+
+    public void setShieldLocation(int[] shieldLocation) {
+        this.shieldLocation = shieldLocation;
+    }
+
+    public int getShieldPossessor() {
+        return shieldPossessor;
+    }
+
+    public void setShieldPossessor(int shieldPossessor) {
+        this.shieldPossessor = shieldPossessor;
     }
 
 }

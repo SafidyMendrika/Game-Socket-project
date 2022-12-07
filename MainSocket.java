@@ -39,8 +39,8 @@ public class MainSocket extends Socket {
 
     private void instead() {
 
-        JFrame frame = new JFrame("Chass");
-        frame.setSize(new Dimension(800, 600));
+        JFrame frame = new JFrame("Chasse");
+        frame.setSize(new Dimension(825, 625));
         frame.setResizable(false);
         frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
         frame.setLocationRelativeTo(null);
