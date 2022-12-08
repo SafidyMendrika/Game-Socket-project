@@ -29,9 +29,9 @@ public class IPgetterListener implements MouseListener {
         try {
 
             if (isValidIp(String.valueOf(this.getIpGetted().toCharArray()))) {
-                MainSocket client = new MainSocket(new Socket(this.getIpGetted(), 1899));
+                MainSocket client = new MainSocket(this.getIpGetted(), 1899);
             } else {
-                MainSocket client = new MainSocket(new Socket(InetAddress.getLocalHost(), 1899));
+                MainSocket client = new MainSocket(InetAddress.getLocalHost(), 1899);
             }
         } catch (Exception a) {
             // MainSocket client = new MainSocket(new Socket(InetAddress.getLocalHost(),

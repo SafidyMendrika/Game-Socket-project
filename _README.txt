@@ -5,7 +5,7 @@ Groupe : A
 
 Projet : Jeux en Socket Java => fanenjika malagasy
 
-avancement : 80%
+avancement : 99%
 
 details : 
     - connection entre le serveur et les client

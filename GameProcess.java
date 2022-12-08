@@ -38,7 +38,7 @@ public class GameProcess implements MouseListener {
         if (src.getName().equals("host")) {
             try {
                 MainServer server = new MainServer(1899);
-                MainSocket client = new MainSocket(new Socket(InetAddress.getLocalHost(), 1899));
+                MainSocket client = new MainSocket(InetAddress.getLocalHost(), 1899);
 
             } catch (Exception ex) {
                 ex.printStackTrace();
