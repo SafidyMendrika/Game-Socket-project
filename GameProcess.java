@@ -34,7 +34,6 @@ public class GameProcess implements MouseListener {
     public void mouseClicked(MouseEvent e) {
         // TODO Auto-generated method stub
         JButton src = (JButton) e.getSource();
-        if (e.isAltDown() && e.isControlDown()) {
             this.getToClose().setVisible(false);
             
             if (src.getName().equals("host")) {
@@ -49,7 +48,7 @@ public class GameProcess implements MouseListener {
             } else {
                 askForIp();
             }
-        }
+        
     }
 
     public void askForIp() {

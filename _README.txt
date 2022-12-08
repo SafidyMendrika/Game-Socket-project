@@ -1,6 +1,5 @@
-NOTICE : Pour lancer le jeu : run.bat
-	- LE JEU NE PEUT ETRE LANCÉ QU'EN APPUYANT A LA FOIS SUR ALT+CTRL+(Les boutons : host ou join) à la fois
-
+NOTICE : Pour lancer le jeu : _run.bat
+	
 Nom : RAZAFIMALAZA
 Prenom : Safidy Mendrika
 ETU : ETU001899
