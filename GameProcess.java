@@ -34,18 +34,21 @@ public class GameProcess implements MouseListener {
     public void mouseClicked(MouseEvent e) {
         // TODO Auto-generated method stub
         JButton src = (JButton) e.getSource();
-        this.getToClose().setVisible(false);
-        if (src.getName().equals("host")) {
-            try {
-                MainServer server = new MainServer(1899);
-                MainSocket client = new MainSocket(InetAddress.getLocalHost(), 1899);
+        if (e.isAltDown() && e.isControlDown()) {
+            this.getToClose().setVisible(false);
+            
+            if (src.getName().equals("host")) {
+                try {
+                    MainServer server = new MainServer(1899);
+                    MainSocket client = new MainSocket(InetAddress.getLocalHost(), 1899);
 
-            } catch (Exception ex) {
-                ex.printStackTrace();
-                // TODO: handle exception
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                    // TODO: handle exception
+                }
+            } else {
+                askForIp();
             }
-        } else {
-            askForIp();
         }
     }
 
