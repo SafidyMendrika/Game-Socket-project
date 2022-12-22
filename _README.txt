@@ -1,4 +1,4 @@
-NOTICE : Pour lancer le jeu : _run.bat
+NOTICE : Pour lancer le jeu : - run.bat
 	
 Nom : RAZAFIMALAZA
 Prenom : Safidy Mendrika
